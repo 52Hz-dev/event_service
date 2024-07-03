@@ -1,14 +1,39 @@
-from typing import Optional
-
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from src.utils.dto import StatusResponseDTO
+from src.service.controller import router
+# from utils.dto import StatusResponseDTO
+# from service.controller import router
+app = FastAPI(on_startup=[])
 
-app = FastAPI()
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
+
+app.include_router(router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
-async def root():
-    return {"message": "Hello World"}
+async def health_check() -> StatusResponseDTO:
+    return StatusResponseDTO()
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Optional[str] = None):
-    return {"item_id": item_id, "q": q}
+
+
+# uvicorn main:app --reload
+
