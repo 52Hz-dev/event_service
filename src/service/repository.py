@@ -27,7 +27,7 @@ def getEvents():
         return result
     except Exception as e:
         return {"error": str(e)}
-def getEventsType():
+def getEventTypes():
     try:
         db = mongo_client["event-service"]
         collection = db["event-type"]
@@ -85,7 +85,7 @@ def updateEvent(id:str, event:Event):
         collection = db["events"]
         result = collection.find_one_and_update(
             {"eventID": id},
-            {"$set": event.dict()},
+            {"$set": event},
             upsert=True,
             return_document=True
         )
