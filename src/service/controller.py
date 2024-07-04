@@ -1,6 +1,6 @@
 from typing import List
 import uuid
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, UploadFile
 from . import repository
 from pathlib import Path
 
@@ -15,16 +15,20 @@ if not os.path.exists(UPLOAD_DIR):
 
 
 
+
 class Event(BaseModel):
     eventID: str
     eventIntro:str
     startDate:str
     endDate:str
     location:str
-    eventTypeID:str
+    eventTypeID :str
     eventDescription:str
     eventOrganizationID:str
+    eventOrganizationName:str
+    eventPrice:int
     picture:str
+    
 class EventType(BaseModel):
     eventTypeID:str
     eventTypeName:str
@@ -37,7 +41,7 @@ async def event():
 
 @router.get("/event-type/", response_model=list[dict])
 async def event():
-    eventType = repository.getEventsType()
+    eventType = repository.getEventTypes()
     return eventType
 @router.get("/event/{id}", response_model=list[dict])
 async def event(id: str):
@@ -54,7 +58,8 @@ async def get_events(eventTypes: List[str] = Query(...)):
 async def event(data: Event):
     if data.eventID=="" or data.eventID is None:
         data.eventID = str(uuid.uuid4())
-    data_to_save = jsonable_encoder(data)
+    basePic = await picture.read()
+    data_to_save = jsonable_encoder(data,basePic)
     # picture= await data.picture.read()
     # data = await file_upload.read()
     # save_to = UPLOAD_DIR / file_upload.filename
@@ -69,8 +74,8 @@ async def event(data: Event):
 
 @router.post("/create-eventType/")
 async def event(data: EventType):
-    if data.eventID=="" or data.eventID is None:
-        data.eventID = str(uuid.uuid4())
+    if data.eventTypeID=="" or data.eventTypeID is None:
+        data.eventTypeID = str(uuid.uuid4())
     data_to_save = jsonable_encoder(data)
 
     return repository.createEventType(data_to_save)

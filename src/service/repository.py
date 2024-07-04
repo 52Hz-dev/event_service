@@ -1,4 +1,5 @@
 from typing import List
+from fastapi import UploadFile
 from pydantic import BaseModel
 from database.mongodb.repository import mongo_client
 
@@ -13,7 +14,12 @@ class Event(BaseModel):
     eventTypeID :str
     eventDescription:str
     eventOrganizationID:str
-    picture:str
+    eventOrganizationName:str
+    eventPrice:int
+    picture:UploadFile
+    
+    
+    
 class EventType(BaseModel):
     eventTypeID:str
     eventTypeName:str
@@ -43,7 +49,7 @@ def getEventbyID(eventid: str):
         condition = {"eventID": eventid}
         result = collection.find_one(condition, {"_id": 0})
         if result:
-            return result
+            return [result]
         else:
             return {"error": "Event not found"}
     except Exception as e:
@@ -73,8 +79,8 @@ def createEvent(event):
 def createEventType(eventType):
     try:
         db = mongo_client["event-service"]
-        collection = db["events"]
-        collection.insert_one(eventType.dict())
+        collection = db["event-type"]
+        collection.insert_one(eventType)
         return {"status": "success", "message": "Event created successfully"}
     except Exception as e:
         return {"error": str(e)}       
