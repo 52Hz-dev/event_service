@@ -6,7 +6,7 @@ from database.mongodb.repository import mongo_client
 
 
 class Event(BaseModel):
-    eventID: str
+    eventID:str
     eventIntro:str
     startDate:str
     endDate:str
@@ -16,7 +16,7 @@ class Event(BaseModel):
     eventOrganizationID:str
     eventOrganizationName:str
     eventPrice:int
-    picture:UploadFile
+    picture:str
     
     
     
@@ -49,7 +49,7 @@ def getEventbyID(eventid: str):
         condition = {"eventID": eventid}
         result = collection.find_one(condition, {"_id": 0})
         if result:
-            return [result]
+            return result
         else:
             return {"error": "Event not found"}
     except Exception as e:
